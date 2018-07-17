@@ -44,8 +44,14 @@ def data_transf(data_set):                      #performs feature scaling and on
 def CostFunction(hypo,optVals):                 #Cost function - checks for convergence
   optVals = np.array(optVals)
   hypo = np.array(hypo)
+  #print("optVal has nan: "+str(np.isnan(optVals).any()))
+  #print("hypo has nan: "+str(np.isnan(hypo).any()))
   cost = optVals*(np.log(hypo)) + (1-optVals)*(np.log(1-hypo))
-  return -(cost.sum()/len(cost))
+  #print("total len of cost: "+str(len(cost)))
+  #print("cost sum is nan: "+str(np.isnan(cost).any()))
+  totalCost = -(cost.sum()/len(cost))
+  #print("total cost: "+str(totalCost))
+  return totalCost
 
 def LogisticFn(z):                              #sigmoid function - hypothesis calculation
   return (1/(1+np.exp(-z)))
@@ -92,16 +98,16 @@ def LogisticRegression(data_set,weightSet,train = False,epoch = 1,learning_rate 
     #print(int(opt.describe()['max']))
     
     batchLen = int(len(inpx)/batchSize) #length of each batch
-    print("max class val: "+str(maxClassVal))
+    #print("max class val: "+str(maxClassVal))
     for b in range(0,int(len(inpx)),batchLen): #dividing entire set based on smaller batch size
-      print(b)
+      #print(b)
       costSet = list()
       inpVals = inpx.iloc[b:batchLen+b].values
       
       hypoDfTemp = pd.DataFrame()
       #print(len(inpVals))
       for cls in range(maxClassVal):   #for multi class classification, performing training using one vs all
-        print("cls: "+str(cls))
+        #print("cls: "+str(cls))
         optVals = opt.iloc[b:batchLen+b].values
         weights = weightSet[cls]
         def OneVall(x):
@@ -142,7 +148,7 @@ def LogisticRegression(data_set,weightSet,train = False,epoch = 1,learning_rate 
           
         #print("hypoDf: "+str(len(hypoDf)))
       else:
-        if(e==0 or (e+1)%100 == 0):
+        if(e==0 or (e+1)%1 == 0):
           print("epoch: "+str(e+1))
           print("Cost set: "+str(np.array(costSet)))
     if not hypoDf.empty:                            #display result set with % of correct classification
@@ -206,7 +212,7 @@ def InitiateClassifier():
   
 
     print("Beginning training..")
-    weights = LogisticRegression(train_rec,weights,True,100,0.001,batchSize = 25,maxClassVal = modSize)        #initiate logistic regression to get    trained weights: training set, initial weights, if in training mode, epochs, learning_rate, batchsize = number of sets the input needs to be divided, maximum representation value of output
+    weights = LogisticRegression(train_rec,weights,True,3000,1,maxClassVal = modSize)        #initiate logistic regression to get    trained weights: training set, initial weights, if in training mode, epochs, learning_rate, batchsize = number of sets the input needs to be divided, maximum representation value of output
     #print("Training complete")
     #print("Beginning evaluation")
     weights = LogisticRegression(test_rec,weights,maxClassVal = modSize)                  #this is a set of weights(matrix) for multiclass classification
